@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="brand">#2563EB</color>
+    <color name="brand_on">#FFFFFF</color>
+
+    <color name="app_bg">#F3F5FA</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="card_stroke">#E3E8F2</color>
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="tile_bg">#E8EEFF</color>
+
+    <color name="grad_start">#0B1F5C</color>
+    <color name="grad_end">#2F6BFF</color>
+    <color name="glass">#26FFFFFF</color>
+    <color name="glass_stroke">#40FFFFFF</color>
+</resources>
