@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/pop_detail" android:title="Lihat hasil" />
+    <item android:id="@+id/pop_share" android:title="Bagikan" />
+    <item android:id="@+id/pop_hapus" android:title="Hapus" />
+</menu>

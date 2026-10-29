@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">AutoCekBekas</string>
+    <string-array name="jenis_kendaraan">
+        <item>Mobil</item>
+        <item>Pickup / Niaga</item>
+    </string-array>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_mode" android:title="Ganti mode gelap/terang" />
+    <item android:id="@+id/action_hapus_semua" android:title="Hapus semua data" />
+    <item android:id="@+id/action_tentang" android:title="Tentang aplikasi" />
+</menu>
