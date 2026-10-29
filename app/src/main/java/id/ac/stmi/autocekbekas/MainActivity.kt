@@ -1,4 +1,3 @@
-
 package id.ac.stmi.autocekbekas
 
 import android.content.Intent
@@ -30,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var b: ActivityMainBinding
     private lateinit var adapter: InspeksiAdapter
 
-    // 0 semua, 1 layak, 2 nego, 3 hindari, 4 belum lengkap
+    // 0 semua, 1 layak, 2 nego, 3 hindari
     private var filter = 0
 
     private fun log(s: String) {
@@ -52,9 +51,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        AppCompatDelegate.setDefaultNightMode(
-            InspeksiStore.getMode(this)
-        )
+        // Paksa mode terang
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         b = ActivityMainBinding.inflate(layoutInflater)
         setContentView(b.root)
@@ -104,20 +102,13 @@ class MainActivity : AppCompatActivity() {
         b.rvInspeksi.layoutManager = LinearLayoutManager(this)
         b.rvInspeksi.adapter = adapter
 
-        // Filter kategori inspeksi
+        // Filter kategori inspeksi (Cuma 3 kategori + Semua)
         b.chipGroup.setOnCheckedStateChangeListener { _, ids ->
-            val idBelumLengkap = resources.getIdentifier(
-                "chipLengkapi",
-                "id",
-                packageName
-            )
-
             filter = when (ids.firstOrNull()) {
                 R.id.chipLayak -> 1
                 R.id.chipNego -> 2
                 R.id.chipHindari -> 3
-                idBelumLengkap -> 4
-                else -> 0
+                else -> 0 // Semua
             }
 
             muatData()
@@ -154,7 +145,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         log("onResume")
-        muatData()
+        muatData() // Refresh data tiap balik ke halaman ini
     }
 
     override fun onPause() {
@@ -202,10 +193,6 @@ class MainActivity : AppCompatActivity() {
 
             3 -> semua.filter {
                 it.rekomendasi.judul == Kategori.HINDARI
-            }
-
-            4 -> semua.filter {
-                it.rekomendasi.judul == Kategori.BELUM_LENGKAP
             }
 
             else -> semua
@@ -334,28 +321,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
+
+        // Sembunyikan tombol Dark Mode
+        val darkModeItem = menu.findItem(R.id.action_mode)
+        darkModeItem?.isVisible = false
+
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_mode -> {
-                val gelap =
-                    InspeksiStore.getMode(this) ==
-                            AppCompatDelegate.MODE_NIGHT_YES
-
-                val baru =
-                    if (gelap) {
-                        AppCompatDelegate.MODE_NIGHT_NO
-                    } else {
-                        AppCompatDelegate.MODE_NIGHT_YES
-                    }
-
-                InspeksiStore.setMode(this, baru)
-                AppCompatDelegate.setDefaultNightMode(baru)
-                true
-            }
-
             R.id.action_hapus_semua -> {
                 MaterialAlertDialogBuilder(this)
                     .setTitle("Hapus semua data?")
@@ -371,8 +346,8 @@ class MainActivity : AppCompatActivity() {
 
             R.id.action_tentang -> {
                 MaterialAlertDialogBuilder(this)
-                    .setTitle("AutoCek Bekas")
-                    .setMessage("Dibuat oleh Kelompok ... (isi nama anggota)")
+                    .setTitle("Instant Car Valuation")
+                    .setMessage("Dibuat oleh Kelompok 6 (Ahmad Muzaki, Hezekiel Berkat, Atila Ahmad, Muhamad Azwardi)")
                     .setPositiveButton("OK", null)
                     .show()
 

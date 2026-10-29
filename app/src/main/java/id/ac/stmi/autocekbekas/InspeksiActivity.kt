@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -36,45 +38,22 @@ class InspeksiActivity : AppCompatActivity() {
         return (value * resources.displayMetrics.density).toInt()
     }
 
-    // Format angka dengan pemisah ribuan titik, misalnya 111.000.
     private fun formatInputAngka(editText: EditText) {
         editText.addTextChangedListener(object : TextWatcher {
             private var sedangMengubah = false
-
-            override fun beforeTextChanged(
-                s: CharSequence?,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {}
-
-            override fun onTextChanged(
-                s: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {}
-
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 if (sedangMengubah) return
                 sedangMengubah = true
-
-                val angka = s?.toString()
-                    .orEmpty()
-                    .filter { it.isDigit() }
-
-                val hasil = if (angka.isEmpty()) {
-                    ""
-                } else {
+                val angka = s?.toString().orEmpty().filter { it.isDigit() }
+                val hasil = if (angka.isEmpty()) "" else {
                     angka.toLongOrNull()?.let {
-                        NumberFormat.getNumberInstance(Locale("id", "ID"))
-                            .format(it)
+                        NumberFormat.getNumberInstance(Locale("id", "ID")).format(it)
                     } ?: angka
                 }
-
                 editText.setText(hasil)
                 editText.setSelection(hasil.length)
-
                 sedangMengubah = false
             }
         })
@@ -108,35 +87,13 @@ class InspeksiActivity : AppCompatActivity() {
 
     private fun updateCatatanVisibility(r: ItemPeriksaBinding) {
         val status = statusDari(r)
-
-        r.tilCatatan.visibility =
-            if (status == Status.PERBAIKAN ||
-                status == Status.BERMASALAH
-            ) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+        r.tilCatatan.visibility = if (status == Status.PERBAIKAN || status == Status.BERMASALAH) View.VISIBLE else View.GONE
     }
 
     private fun styleChip(chip: Chip, warnaAktif: Int) {
-        val states = arrayOf(
-            intArrayOf(android.R.attr.state_checked),
-            intArrayOf()
-        )
-
-        chip.chipBackgroundColor = ColorStateList(
-            states,
-            intArrayOf(warnaAktif, getColor(R.color.card_bg))
-        )
-
-        chip.setTextColor(
-            ColorStateList(
-                states,
-                intArrayOf(Color.WHITE, getColor(R.color.text_primary))
-            )
-        )
-
+        val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
+        chip.chipBackgroundColor = ColorStateList(states, intArrayOf(warnaAktif, getColor(R.color.card_bg)))
+        chip.setTextColor(ColorStateList(states, intArrayOf(Color.WHITE, getColor(R.color.text_primary))))
         chip.isCheckedIconVisible = false
     }
 
@@ -146,13 +103,37 @@ class InspeksiActivity : AppCompatActivity() {
         val rekomendasi = Skor.rekomendasi(status)
         val diperiksa = Skor.jumlahDiperiksa(status)
 
-        b.tvSkorLive.text =
-            "Skor $skor / 100 · $diperiksa dari ${Skor.DAFTAR.size} diperiksa"
-
+        b.tvSkorLive.text = "Skor $skor / 100 · $diperiksa dari ${Skor.DAFTAR.size} diperiksa"
         b.tvLabelLive.text = rekomendasi.judul
         b.tvLabelLive.setTextColor(rekomendasi.warna)
         b.progressLive.setIndicatorColor(rekomendasi.warna)
         b.progressLive.setProgressCompat(skor, true)
+    }
+
+    // LOGIKA CASCADING: MEREK -> MODEL (Gabungan Tipe)
+    private fun setupDropdowns() {
+        val adapterMerek = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, DataMobil.getMerekList())
+        b.etMerek.setAdapter(adapterMerek)
+
+        b.etMerek.setOnItemClickListener { _, _, _, _ ->
+            val merek = b.etMerek.text.toString()
+            val modelList = DataMobil.getModelList(merek)
+
+            // Gabungkan Model + Tipe jadi 1 string, misal "Innova V"
+            val gabunganList = mutableListOf<String>()
+            modelList.forEach { model ->
+                val tipeList = DataMobil.getTipeList(merek, model)
+                tipeList.forEach { tipe ->
+                    gabunganList.add("$model $tipe")
+                }
+            }
+
+            b.etModel.setText("")
+            b.etModel.isEnabled = gabunganList.isNotEmpty()
+            val adapterGabungan = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, gabunganList)
+            b.etModel.setAdapter(adapterGabungan)
+            if (gabunganList.isNotEmpty()) b.etModel.showDropDown()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -161,95 +142,65 @@ class InspeksiActivity : AppCompatActivity() {
         b = ActivityInspeksiBinding.inflate(layoutInflater)
         setContentView(b.root)
 
-        // Format otomatis kilometer, harga tawaran, dan harga pasar.
         formatInputAngka(b.etKm)
         formatInputAngka(b.etHarga)
         formatInputAngka(b.etHargaPasar)
 
         setSupportActionBar(b.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        WindowCompat.getInsetsController(window, window.decorView)
-            .isAppearanceLightStatusBars = false
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
 
         ViewCompat.setOnApplyWindowInsetsListener(b.root) { _, insets ->
-            val bars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars()
-            )
-            val keyboard = insets.getInsets(
-                WindowInsetsCompat.Type.ime()
-            )
-
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val keyboard = insets.getInsets(WindowInsetsCompat.Type.ime())
             b.appbar.updatePadding(top = bars.top)
-            b.bottomBar.updatePadding(
-                bottom = maxOf(bars.bottom, keyboard.bottom) + dp(16)
-            )
-
+            b.bottomBar.updatePadding(bottom = maxOf(bars.bottom, keyboard.bottom) + dp(16))
             insets
         }
 
         val editId = intent.getLongExtra(EXTRA_EDIT_ID, -1L)
+        editItem = if (editId != -1L) InspeksiStore.getById(this, editId) else null
 
-        editItem = if (editId != -1L) {
-            InspeksiStore.getById(this, editId)
-        } else {
-            null
-        }
+        supportActionBar?.title = if (editItem != null) "Ubah Inspeksi" else "Inspeksi Baru"
+        if (editItem != null) b.btnSimpan.text = "Simpan Perubahan"
 
-        supportActionBar?.title =
-            if (editItem != null) "Ubah Inspeksi" else "Inspeksi Baru"
+        setupDropdowns()
 
-        if (editItem != null) {
-            b.btnSimpan.text = "Simpan Perubahan"
-        }
-
-        // Isi form saat mengubah inspeksi yang sudah tersimpan.
+        // Isi form saat edit
         editItem?.let { item ->
             if (savedInstanceState == null) {
-                b.etMerek.setText(item.merek)
-                b.etModel.setText(item.model)
+                b.etMerek.setText(item.merek, false)
 
-                if (item.tahun > 0) {
-                    b.etTahun.setText(item.tahun.toString())
+                val modelList = DataMobil.getModelList(item.merek)
+                val gabunganList = mutableListOf<String>()
+                modelList.forEach { m ->
+                    DataMobil.getTipeList(item.merek, m).forEach { t ->
+                        gabunganList.add("$m $t")
+                    }
                 }
+                val adapterGabungan = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, gabunganList)
+                b.etModel.setAdapter(adapterGabungan)
+                b.etModel.isEnabled = gabunganList.isNotEmpty()
+                b.etModel.setText(item.model, false)
 
-                if (item.km > 0) {
-                    b.etKm.setText(formatAngka(item.km))
-                }
-
+                if (item.tahun > 0) b.etTahun.setText(item.tahun.toString())
+                if (item.km > 0) b.etKm.setText(formatAngka(item.km))
                 b.etHarga.setText(formatAngka(item.harga))
-
-                if (item.hargaPembanding > 0) {
-                    b.etHargaPasar.setText(formatAngka(item.hargaPembanding))
-                }
-
+                if (item.hargaPembanding > 0) b.etHargaPasar.setText(formatAngka(item.hargaPembanding))
                 b.etPenjual.setText(item.noPenjual)
 
-                // Hanya memilih tipe mobil.
-                // Data lama dengan jenis "Motor" akan memakai pilihan pertama.
-                val jenisMobil = resources.getStringArray(
-                    R.array.jenis_kendaraan
-                )
+                val jenisMobil = resources.getStringArray(R.array.jenis_kendaraan)
                 val posisi = jenisMobil.indexOf(item.jenis)
-
-                b.spJenis.setSelection(
-                    if (posisi >= 0) posisi else 0
-                )
+                b.spJenis.setSelection(if (posisi >= 0) posisi else 0)
             }
         }
 
-        // Membuat checklist pemeriksaan kendaraan.
+        // Checklist
         Skor.DAFTAR.forEach { item ->
-            val row = ItemPeriksaBinding.inflate(
-                layoutInflater,
-                b.listPeriksa,
-                false
-            )
-
+            val row = ItemPeriksaBinding.inflate(layoutInflater, b.listPeriksa, false)
             row.root.isSaveFromParentEnabled = false
             row.tvJudul.text = item.judul
             row.tvPetunjuk.text = item.petunjuk
-
             row.chipBaik.text = item.opsi[0]
             row.chipPerbaikan.text = item.opsi[1]
             row.chipMasalah.text = item.opsi[2]
@@ -258,16 +209,10 @@ class InspeksiActivity : AppCompatActivity() {
             styleChip(row.chipPerbaikan, Skor.AMBER)
             styleChip(row.chipMasalah, Skor.MERAH)
 
-            val statusAwal =
-                savedInstanceState?.getString("st_${item.key}")
-                    ?: editItem?.status?.get(item.key)
-
+            val statusAwal = savedInstanceState?.getString("st_${item.key}") ?: editItem?.status?.get(item.key)
             setStatus(row, statusAwal)
 
-            val catatanAwal =
-                savedInstanceState?.getString("ct_${item.key}")
-                    ?: editItem?.catatan?.get(item.key)
-
+            val catatanAwal = savedInstanceState?.getString("ct_${item.key}") ?: editItem?.catatan?.get(item.key)
             row.etCatatan.setText(catatanAwal ?: "")
             updateCatatanVisibility(row)
 
@@ -281,114 +226,56 @@ class InspeksiActivity : AppCompatActivity() {
         }
 
         updateSkorLive()
-
-        b.btnBatal.setOnClickListener {
-            finish()
-        }
+        b.btnBatal.setOnClickListener { finish() }
 
         b.btnSimpan.setOnClickListener {
-            listOf(
-                b.tilMerek,
-                b.tilModel,
-                b.tilTahun,
-                b.tilKm,
-                b.tilHarga,
-                b.tilHargaPasar,
-                b.tilPenjual
-            ).forEach {
-                it.error = null
-            }
-
             val merek = b.etMerek.text.toString().trim()
-            val model = b.etModel.text.toString().trim()
-            val tahun = b.etTahun.text.toString().trim().toIntOrNull()
+            val modelGabungan = b.etModel.text.toString().trim()
+            val tahunStr = b.etTahun.text.toString().trim()
+            val tahun = tahunStr.toIntOrNull()
             val km = angkaDariInput(b.etKm.text.toString())
             val harga = angkaDariInput(b.etHarga.text.toString())
             val hargaPasar = angkaDariInput(b.etHargaPasar.text.toString())
             val hp = b.etPenjual.text.toString().trim()
 
-            val tahunSekarang = Calendar.getInstance()
-                .get(Calendar.YEAR)
-
+            val tahunSekarang = Calendar.getInstance().get(Calendar.YEAR)
             var valid = true
 
-            if (merek.length < 2) {
-                b.tilMerek.error = "Isi merek mobil"
-                valid = false
-            }
+            b.tilTahun.error = null
+            b.tilKm.error = null
+            b.tilHarga.error = null
+            b.tilPenjual.error = null
 
-            if (model.length < 2) {
-                b.tilModel.error = "Isi model atau tipe mobil"
+            if (merek.isEmpty()) { Toast.makeText(this, "Pilih merek", Toast.LENGTH_SHORT).show(); valid = false }
+            else if (modelGabungan.isEmpty()) { Toast.makeText(this, "Pilih model/tipe", Toast.LENGTH_SHORT).show(); valid = false }
+            else if (tahun == null || tahun < 1980 || tahun > tahunSekarang + 1) {
+                b.tilTahun.error = "Tahun harus antara 1980 dan ${tahunSekarang + 1}"
                 valid = false
             }
+            else if (km == null || km < 1L || km > 1_500_000L) { b.tilKm.error = "Isi kilometer 1–1.500.000"; valid = false }
+            else if (harga == null || harga < 1_000_000L || harga > 10_000_000_000L) { b.tilHarga.error = "Harga tidak masuk akal"; valid = false }
+            else if (hp.isNotEmpty() && hp.count { it.isDigit() } < 8) { b.tilPenjual.error = "Nomor HP tidak valid"; valid = false }
 
-            if (tahun == null ||
-                tahun < 1980 ||
-                tahun > tahunSekarang + 1
-            ) {
-                b.tilTahun.error =
-                    "Tahun harus antara 1980 dan ${tahunSekarang + 1}"
-                valid = false
-            }
-
-            if (km == null || km < 1L || km > 1_500_000L) {
-                b.tilKm.error = "Isi kilometer 1–1.500.000"
-                valid = false
-            }
-
-            if (harga == null) {
-                b.tilHarga.error = "Isi harga dengan angka"
-                valid = false
-            } else if (
-                harga < 1_000_000L ||
-                harga > 10_000_000_000L
-            ) {
-                b.tilHarga.error =
-                    "Harga tidak masuk akal, periksa lagi"
-                valid = false
-            }
-
-            if (hp.isNotEmpty() && hp.count { it.isDigit() } < 8) {
-                b.tilPenjual.error = "Nomor HP tidak valid"
-                valid = false
-            }
-
-            if (!valid || tahun == null || km == null || harga == null) {
-                return@setOnClickListener
-            }
+            if (!valid || tahun == null) return@setOnClickListener
 
             val status = semuaStatus()
-
             val catatan = rows.mapNotNull { (key, row) ->
                 val s = status[key]
                 val teks = row.etCatatan.text.toString().trim()
-
-                if (
-                    (s == Status.PERBAIKAN ||
-                            s == Status.BERMASALAH) &&
-                    teks.isNotEmpty()
-                ) {
-                    key to teks
-                } else {
-                    null
-                }
+                if ((s == Status.PERBAIKAN || s == Status.BERMASALAH) && teks.isNotEmpty()) key to teks else null
             }.toMap()
 
-            val tanggal = SimpleDateFormat(
-                "dd MMM yyyy",
-                Locale("id", "ID")
-            ).format(Date())
-
+            val tanggal = SimpleDateFormat("dd MMM yyyy", Locale("id", "ID")).format(Date())
             val lama = editItem
 
             val item = Inspeksi(
                 id = lama?.id ?: System.currentTimeMillis(),
                 merek = merek,
-                model = model,
+                model = modelGabungan,
                 jenis = b.spJenis.selectedItem.toString(),
                 tahun = tahun,
-                km = km,
-                harga = harga,
+                km = km!!,
+                harga = harga!!,
                 hargaPembanding = hargaPasar ?: 0L,
                 status = status,
                 catatan = catatan,
@@ -401,13 +288,8 @@ class InspeksiActivity : AppCompatActivity() {
                 finish()
             } else {
                 InspeksiStore.add(this, item)
-
-                val intent = Intent(
-                    this,
-                    HasilActivity::class.java
-                )
+                val intent = Intent(this, HasilActivity::class.java)
                 intent.putExtra(HasilActivity.EXTRA_ID, item.id)
-
                 startActivity(intent)
                 finish()
             }
@@ -416,13 +298,9 @@ class InspeksiActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-
         rows.forEach { (key, row) ->
             outState.putString("st_$key", statusDari(row))
-            outState.putString(
-                "ct_$key",
-                row.etCatatan.text.toString()
-            )
+            outState.putString("ct_$key", row.etCatatan.text.toString())
         }
     }
 

@@ -1,4 +1,3 @@
-
 package id.ac.stmi.autocekbekas
 
 import android.graphics.Color
@@ -96,13 +95,15 @@ object Skor {
     }
 
     // Total bobot seluruh pemeriksaan adalah 100.
+    // Revisi: Menambahkan Ban & Rem, mengubah Mesin jadi Mesin & Transmisi, 
+    // dan menyesuaikan bobot agar tetap total 100.
     val DAFTAR = listOf(
         ItemPeriksa(
             key = "mesin",
-            nama = "Mesin",
-            judul = "Kondisi mesin",
-            pertanyaan = "Bagaimana kondisi mesin?",
-            petunjuk = "Perhatikan suara, getaran, dan asap knalpot.",
+            nama = "Mesin & Transmisi",
+            judul = "Kondisi mesin & transmisi",
+            pertanyaan = "Bagaimana kondisi mesin dan perpindahan gigi?",
+            petunjuk = "Perhatikan suara, getaran, asap knalpot, dan kelancaran perpindahan transmisi (matic/manual).",
             opsi = listOf(
                 "Halus & normal",
                 "Keluhan ringan",
@@ -122,7 +123,7 @@ object Skor {
                 "Kerusakan ringan",
                 "Kerusakan berat"
             ),
-            bobot = 20,
+            bobot = 15,
             kritis = true
         ),
         ItemPeriksa(
@@ -138,6 +139,20 @@ object Skor {
             ),
             bobot = 15,
             kritis = true
+        ),
+        ItemPeriksa(
+            key = "ban_rem",
+            nama = "Ban & Rem",
+            judul = "Kondisi ban dan sistem pengereman",
+            pertanyaan = "Bagaimana kondisi ban dan rem?",
+            petunjuk = "Periksa ketebalan alur ban, usia ban, serta respons dan bunyi saat pengereman.",
+            opsi = listOf(
+                "Normal & pakem",
+                "Aus / perlu perbaikan",
+                "Gundul / blong (bahaya)"
+            ),
+            bobot = 10,
+            kritis = true // Kritis karena menyangkut keselamatan
         ),
         ItemPeriksa(
             key = "pajak",
@@ -172,7 +187,7 @@ object Skor {
             nama = "AC & kelistrikan",
             judul = "AC dan kelistrikan",
             pertanyaan = "Apakah AC dan kelistrikan berfungsi?",
-            petunjuk = "Uji AC, lampu, indikator, dan perangkat listrik.",
+            petunjuk = "Uji AC, lampu, indikator, dan perangkat listrik. Cek juga kondisi interior dasar.",
             opsi = listOf(
                 "Berfungsi normal",
                 "Ada gangguan ringan",
@@ -192,7 +207,7 @@ object Skor {
                 "Belum sepenuhnya terverifikasi",
                 "Ada indikasi ketidaksesuaian"
             ),
-            bobot = 10,
+            bobot = 5,
             kritis = false
         )
     )

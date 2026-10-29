@@ -1,4 +1,3 @@
-
 package id.ac.stmi.autocekbekas
 
 import android.content.Context
@@ -11,7 +10,6 @@ object InspeksiStore {
     private const val PREF = "autocek_pref"
     private const val KEY_LIST = "list_inspeksi"
     private const val KEY_TOTAL = "total_dicek"
-    private const val KEY_MODE = "night_mode"
     private const val KEY_ONBOARD = "sudah_onboarding"
 
     private fun prefs(c: Context) =
@@ -105,11 +103,7 @@ object InspeksiStore {
                 put("tahun", i.tahun)
                 put("km", i.km)
                 put("harga", i.harga)
-
-                // Mempertahankan struktur data lama.
-                // Inspeksi baru menyimpan nilai 0.
                 put("hargaPembanding", i.hargaPembanding)
-
                 put("status", so)
                 put("catatan", co)
                 put("tanggal", i.tanggal)
@@ -140,14 +134,8 @@ object InspeksiStore {
     fun total(c: Context): Int =
         prefs(c).getInt(KEY_TOTAL, 0)
 
-    fun getMode(c: Context): Int =
-        prefs(c).getInt(
-            KEY_MODE,
-            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        )
-
-    fun setMode(c: Context, mode: Int) =
-        prefs(c).edit().putInt(KEY_MODE, mode).apply()
+    // Dipaksa selalu mode terang
+    fun getMode(c: Context): Int = AppCompatDelegate.MODE_NIGHT_NO
 
     fun sudahOnboarding(c: Context): Boolean =
         prefs(c).getBoolean(KEY_ONBOARD, false)

@@ -67,77 +67,80 @@
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
+                    <!-- MEREK (Dropdown) -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Merek Mobil"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="4dp"/>
+                    <AutoCompleteTextView
+                        android:id="@+id/etMerek"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/bg_glass"
+                        android:paddingHorizontal="16dp"
+                        android:hint="Cari merek (contoh: Toyota)"
+                        android:inputType="text"
+                        android:completionThreshold="1" />
+
+                    <!-- MODEL / TIPE (Dropdown Gabungan) -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Model / Tipe"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="4dp"/>
+                    <AutoCompleteTextView
+                        android:id="@+id/etModel"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/bg_glass"
+                        android:paddingHorizontal="16dp"
+                        android:hint="Pilih merek dulu"
+                        android:inputType="text"
+                        android:enabled="false"
+                        android:completionThreshold="1" />
+
+                    <!-- TAHUN (Input Manual) -->
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilMerek"
+                        android:id="@+id/tilTahun"
                         style="@style/Widget.AutoCek.Input"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
-                        android:hint="Merek (contoh: Toyota)">
+                        android:hint="Tahun (contoh: 2018)">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etMerek"
+                            android:id="@+id/etTahun"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textCapWords" />
+                            android:inputType="number"
+                            android:maxLength="4" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- KILOMETER -->
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilModel"
+                        android:id="@+id/tilKm"
                         style="@style/Widget.AutoCek.Input"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
-                        android:hint="Model / tipe (contoh: Innova V Diesel)">
+                        android:hint="Kilometer"
+                        app:suffixText="km">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etModel"
+                            android:id="@+id/etKm"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textCapWords" />
+                            android:inputType="number" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/tilTahun"
-                            style="@style/Widget.AutoCek.Input"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="6dp"
-                            android:layout_weight="1"
-                            android:hint="Tahun">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etTahun"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="number"
-                                android:maxLength="4" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/tilKm"
-                            style="@style/Widget.AutoCek.Input"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
-                            android:layout_weight="1"
-                            android:hint="Kilometer"
-                            app:suffixText="km">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etKm"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="number" />
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </LinearLayout>
-
+                    <!-- HARGA PENJUAL -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilHarga"
                         style="@style/Widget.AutoCek.Input"
@@ -154,7 +157,7 @@
                             android:inputType="number" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- INPUT BARU: HARGA PEMBANDING PASAR -->
+                    <!-- HARGA PASAR (Opsional) -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilHargaPasar"
                         style="@style/Widget.AutoCek.Input"
@@ -171,6 +174,7 @@
                             android:inputType="number" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- NO HP PENJUAL -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilPenjual"
                         style="@style/Widget.AutoCek.Input"
@@ -201,7 +205,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Kartu 2: pemeriksaan (baris dibuat dari kode) -->
+            <!-- Kartu 2: pemeriksaan -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Widget.AutoCek.Card"
                 android:layout_width="match_parent"
