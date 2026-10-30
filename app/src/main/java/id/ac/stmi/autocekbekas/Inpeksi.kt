@@ -95,8 +95,6 @@ object Skor {
     }
 
     // Total bobot seluruh pemeriksaan adalah 100.
-    // Revisi: Menambahkan Ban & Rem, mengubah Mesin jadi Mesin & Transmisi, 
-    // dan menyesuaikan bobot agar tetap total 100.
     val DAFTAR = listOf(
         ItemPeriksa(
             key = "mesin",
@@ -152,7 +150,7 @@ object Skor {
                 "Gundul / blong (bahaya)"
             ),
             bobot = 10,
-            kritis = true // Kritis karena menyangkut keselamatan
+            kritis = true
         ),
         ItemPeriksa(
             key = "pajak",
@@ -320,7 +318,8 @@ object Skor {
 
                 alasan.add(
                     "Terdapat kondisi yang perlu diperhatikan. " +
-                            "Periksa penyebab dan estimasi biaya perbaikan sebelum bernegosiasi."
+                            "Periksa penyebab dan estimasi biaya perbaikan sebelum bernegosiasi. " +
+                            "Saran: Nego 5-10% dari harga penawaran atau minta penjual memperbaiki item yang bermasalah."
                 )
             }
 
@@ -335,13 +334,16 @@ object Skor {
             }
         }
 
+        // LOGIKA YANG DIUBAH: Nampilin teks asli dari checklist (misal "Segera jatuh tempo")
         perluPerbaikan.forEach { item ->
-            alasan.add("${item.nama}: perlu perbaikan.")
+            val label = item.labelDari(status[item.key])
+            alasan.add("${item.nama}: $label.")
         }
 
         masalahSerius.forEach { item ->
             if (masalahKritis.none { it.key == item.key }) {
-                alasan.add("${item.nama}: ditemukan masalah.")
+                val label = item.labelDari(status[item.key])
+                alasan.add("${item.nama}: $label.")
             }
         }
 
