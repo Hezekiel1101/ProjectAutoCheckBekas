@@ -245,10 +245,11 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:text="Inspeksi Baru"
-        android:textColor="@color/white"
-        app:backgroundTint="@color/brand"
-        app:iconTint="@color/white"
-        app:icon="@android:drawable/ic_input_add"
-        app:cornerRadius="16dp"/>
+
+    android:textColor="@color/white"
+    app:backgroundTint="#2E7D32"
+    app:iconTint="@color/white"
+    app:icon="@android:drawable/ic_input_add"
+    app:cornerRadius="16dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
