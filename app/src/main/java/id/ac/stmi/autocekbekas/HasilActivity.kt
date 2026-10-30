@@ -1,4 +1,3 @@
-
 package id.ac.stmi.autocekbekas
 
 import android.animation.ValueAnimator
@@ -139,8 +138,20 @@ class HasilActivity : AppCompatActivity() {
             b.listHasil.addView(row.root)
         }
 
-        // Hanya menampilkan harga tawaran penjual.
+        // 1. Tampilkan Harga Penjual
         b.tvHarga.text = rupiah(item.harga)
+
+        // 2. Tampilkan Harga Pasar & Penilaian (LOGIKA BARU)
+        if (item.hargaPembanding > 0) {
+            b.tvPembanding.visibility = View.VISIBLE
+            b.tvPenilaianHarga.visibility = View.VISIBLE
+
+            b.tvPembanding.text = "Pasar: ${rupiah(item.hargaPembanding)}"
+            b.tvPenilaianHarga.text = item.penilaianHarga
+        } else {
+            b.tvPembanding.visibility = View.GONE
+            b.tvPenilaianHarga.visibility = View.GONE
+        }
 
         b.btnShare.setOnClickListener {
             bagikanInspeksi(item)
@@ -150,6 +161,21 @@ class HasilActivity : AppCompatActivity() {
             val intent = Intent(this, InspeksiActivity::class.java)
             intent.putExtra(InspeksiActivity.EXTRA_EDIT_ID, item.id)
             startActivity(intent)
+        }
+
+        // 3. LOGIKA TOMBOL CEK HARGA (Buka Google Search)
+        b.btnCari.setOnClickListener {
+            val kataKunci = "${item.merek} ${item.model} ${item.tahun}"
+            val url = "https://www.google.com/search?q=harga+mobil+bekas+$kataKunci"
+
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(url)
+
+            try {
+                startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Tidak dapat membuka browser", Toast.LENGTH_SHORT).show()
+            }
         }
 
         b.btnTelepon.setOnClickListener {
