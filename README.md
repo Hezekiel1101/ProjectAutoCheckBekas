@@ -158,10 +158,10 @@ Aplikasi AutoCekBekas dikembangkan secara kolaboratif oleh Kelompok 6 sebagai ba
 
 | No. | Nama Anggota |
 |---|---|
-| 01 | Ahmad Muzaki |
-| 02 | Hezekiel Berkat Lamtama |
-| 03 | Atila Ahmad Jilan |
-| 04 | Muhamad Azwardi Azis |
+| 01 | Atila Ahmad Jilan 1324034 | 
+| 02 | Ahmad Muzaki 1324037 |
+| 03 | Hezekiel Berkat Lamtama 1324039 |
+| 04 | Muhammad Azwardi Azis 1324055 |
 
 ---
 
